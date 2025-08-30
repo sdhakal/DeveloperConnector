@@ -1,120 +1,60 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-
 const ProfileSchema = new Schema({
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: "users"
-  },
+  user: { type: Schema.Types.ObjectId, ref: 'users', required: true, index: true },
+
+  // Make handle required, trimmed, lowercased, and unique
   handle: {
     type: String,
     required: true,
-    max: 40
+    trim: true,
+    lowercase: true,
+    unique: true,
+    maxlength: 40
   },
-  company: {
-    type: String
-  },
-  website: {
-    type: String
-  },
-  location: {
-    type: String
-  },
-  status: {
-    type: String,
-    required: true
-  },
-  skills: {
-    type: [String],
-    required: true
-  },
-  bio: {
-    type: String
-  },
-  githubusername: {
-    type: String
-  },
+
+  company: String,
+  website: String,
+  location: String,
+  status: { type: String, required: true },
+  skills: { type: [String], default: [] },
+  bio: String,
+  githubusername: String,
+
   experience: [
     {
-      title: {
-        type: String,
-        required: true
-      },
-      company: {
-        type: String,
-        required: true
-      },
-      location: {
-        type: String
-      },
-      from: {
-        type: Date,
-        required: true
-      },
-      to: {
-        type: Date
-      },
-      current: {
-        type: Boolean,
-        default: false
-      },
-      description: {
-        type: String
-      }
+      title: { type: String, required: true },
+      company: { type: String, required: true },
+      location: String,
+      from: { type: Date, required: true },
+      to: Date,
+      current: { type: Boolean, default: false },
+      description: String
     }
   ],
   education: [
     {
-      school: {
-        type: String,
-        required: true
-      },
-      degree: {
-        type: String,
-        required: true
-      },
-      fieldofstudy: {
-        type: String,
-        required: true
-      },
-      from: {
-        type: Date,
-        required: true
-      },
-      to: {
-        type: Date
-      },
-      current: {
-        type: Boolean,
-        default: false
-      },
-      description: {
-        type: String
-      }
+      school: { type: String, required: true },
+      degree: { type: String, required: true },
+      fieldofstudy: { type: String, required: true },
+      from: { type: Date, required: true },
+      to: Date,
+      current: { type: Boolean, default: false },
+      description: String
     }
   ],
   social: {
-    youtube: {
-      type: String
-    },
-    twitter: {
-      type: String
-    },
-    facebook: {
-      type: String
-    },
-    linkedin: {
-      type: String
-    },
-    instagram: {
-      type: String
-    }
+    youtube: String,
+    twitter: String,
+    facebook: String,
+    linkedin: String,
+    instagram: String
   },
-  date: {
-    type: Date,
-    default: Date.now
-  }
+  date: { type: Date, default: Date.now }
 });
 
-module.exports = Profile = mongoose.model("profile", ProfileSchema);
+// In case the unique index wasn’t built yet:
+ProfileSchema.index({ handle: 1 }, { unique: true });
+
+module.exports = mongoose.model('profile', ProfileSchema);
