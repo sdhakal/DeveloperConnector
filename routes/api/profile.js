@@ -283,21 +283,12 @@ router.delete(
 router.delete(
   "/",
   passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      const userId = req.user.id;
-
-      // If you also want to delete the user's posts, do it here first:
-      // await Post.deleteMany({ user: userId });
-
-      await Profile.findOneAndDelete({ user: userId });
-      await User.findByIdAndDelete(userId);
-
-      return res.json({ msg: "Account deleted" });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Server error" });
-    }
+  (req, res) => {
+    Profile.findOneAndRemove({ user: req.user.id }).then(() =>
+      User.findOneAndRemove({ _id: req.user.id }).then(() =>
+        res.json({ success: true })
+      )
+    );
   }
 );
 
