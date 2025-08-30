@@ -7,7 +7,9 @@
     "heroku-postbuild": "npm --prefix client ci && npm --prefix client run build",
     "start": "node server.js"
   },
-  "engines": { "node": ">=18.x" },
+  "engines": {
+    "node": ">=18.x"
+  },
   "author": "Suman Dhakal",
   "license": "MIT",
   "dependencies": {
@@ -20,7 +22,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.0",
     "passport": "^0.7.0",
-    "passport-jwt": "^4.0.0",
+    "passport-jwt": "^4.0.1",
     "validator": "^13.15.15"
   }
 }

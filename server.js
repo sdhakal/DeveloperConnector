@@ -1,12 +1,13 @@
 // server.js
 'use strict';
 
-// Load .env locally (harmless in Koyeb if no .env present)
+// Load .env locally (harmless on Koyeb if no .env present)
 try { require('dotenv').config(); } catch {}
 
 // Core
 const express = require('express');
 const mongoose = require('mongoose');
+const passport = require('passport');
 
 const app = express();
 
@@ -33,12 +34,7 @@ if (process.env.CORS_ORIGINS) {
   }
 }
 
-// ---------- Routes ----------
-try { app.use('/api/users', require('./routes/api/users')); } catch { console.warn('routes/api/users missing'); }
-try { app.use('/api/profile', require('./routes/api/profile')); } catch { console.warn('routes/api/profile missing'); }
-try { app.use('/api/posts', require('./routes/api/posts')); } catch { console.warn('routes/api/posts missing'); }
-
-// Health + friendly root
+// Health + friendly root (mounted now so health checks work even if DB fails)
 app.get('/healthz', (_req, res) => res.send('ok'));
 app.get('/', (_req, res) => res.send('DeveloperConnector API is running'));
 
@@ -91,6 +87,23 @@ async function start() {
     process.exit(1); // fail fast so you notice in Koyeb
   }
 
+  // ---------- Passport JWT (MUST be before protected routes) ----------
+  app.use(passport.initialize());
+  try {
+    // Typical DevConnector pattern: config/passport exports a function(passport)
+    require('./config/passport')(passport);
+    console.log('✅ Passport JWT strategy loaded');
+  } catch (e) {
+    console.error('❌ Failed to load ./config/passport:', e && e.message ? e.message : e);
+    // We still start the server so you can see logs, but protected routes will fail until this is fixed.
+  }
+
+  // ---------- API routes (now that passport is ready) ----------
+  try { app.use('/api/users', require('./routes/api/users')); } catch { console.warn('routes/api/users missing'); }
+  try { app.use('/api/profile', require('./routes/api/profile')); } catch { console.warn('routes/api/profile missing'); }
+  try { app.use('/api/posts', require('./routes/api/posts')); } catch { console.warn('routes/api/posts missing'); }
+
+  // ---------- Listen on platform port ----------
   const PORT = process.env.PORT || 8000;
   app.listen(PORT, () => console.log(`Server on ${PORT}`));
 }
