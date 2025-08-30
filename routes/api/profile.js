@@ -280,16 +280,13 @@ router.delete(
 // @route DELETE api/profile
 // @desc  Delete user and profile
 // @access Private
-router.delete(
-  "/",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    Profile.findOneAndRemove({ user: req.user.id }).then(() =>
-      User.findOneAndRemove({ _id: req.user.id }).then(() =>
-        res.json({ success: true })
-      )
-    );
+router.delete("/", passport.authenticate("jwt", { session: false }), async (req, res) => {
+  try {
+    await Profile.findOneAndDelete({ user: req.user.id }); // profile only
+    return res.json({ msg: "Profile deleted" });
+  } catch (err) {
+    return res.status(500).json({ error: "Server error" });
   }
-);
+});
 
 module.exports = router;

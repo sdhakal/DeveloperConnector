@@ -142,24 +142,33 @@ export const getProfiles = () => dispatch => {
 };
 
 // Delete account and profile
+// Delete *profile only* (keep user so they can log in and recreate it)
 export const deleteAccount = () => dispatch => {
-  if (window.confirm("Are you sure? This can NOT be undone!")) {
+  if (window.confirm("Delete your profile? You can log in later and create it again.")) {
     axios
       .delete("/api/profile")
-      .then(res =>
-        dispatch({
-          type: SET_CURRENT_USER,
-          payload: {}
-        })
-      )
+      .then(() => {
+        // Clear profile data in Redux
+        dispatch({ type: CLEAR_CURRENT_PROFILE });
+        // Also clear the active profile slice so UI updates immediately
+        dispatch({ type: GET_PROFILE, payload: {} });
+
+        // Stay logged in (do NOT remove token or current user)
+        // Optional: refresh developers list if you show it right away
+        // dispatch(getProfiles());
+
+        // Send the user to create a fresh profile
+        window.location.href = "/create-profile";
+      })
       .catch(err =>
         dispatch({
           type: GET_ERRORS,
-          payload: err.response.data
+          payload: err?.response?.data || { error: "Delete profile failed" }
         })
       );
   }
 };
+
 
 //Profile loading
 export const setProfileLoading = () => {
