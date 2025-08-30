@@ -105,19 +105,20 @@ export const getPost = id => dispatch => {
 };
 
 //Delete Post
-export const deletePost = id => dispatch => {
+export const deletePost = (id) => dispatch => {
+  // Ensure auth header exists after refresh (if your app doesn't already do this on boot)
+  const token = localStorage.getItem("jwtToken");
+  if (token) axios.defaults.headers.common["Authorization"] = token;
+
   axios
     .delete(`/api/posts/${id}`)
-    .then(res =>
-      dispatch({
-        type: DELETE_POST,
-        payload: id
-      })
-    )
+    .then(() => {
+      dispatch({ type: DELETE_POST, payload: id });
+    })
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
-        payload: err.response.data
+        payload: err?.response?.data || { error: "Delete post failed" }
       })
     );
 };
