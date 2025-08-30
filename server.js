@@ -21,11 +21,6 @@ console.log(
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// CORS only if you split FE/BE across domains
-if (process.env.CLIENT_ORIGIN) {
-  app.use(cors({ origin: [process.env.CLIENT_ORIGIN], credentials: true }));
-}
-
 // ---- Mongo ----
 const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/devconnector';
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
