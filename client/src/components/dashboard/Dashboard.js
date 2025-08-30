@@ -14,7 +14,10 @@ class Dashboard extends Component {
   }
 
   onDeleteClick(e) {
-    this.props.deleteAccount();
+    e.preventDefault();
+    if (window.confirm("This will permanently delete your account and profile. Continue?")) {
+      this.props.deleteAccount();
+    }
   }
 
   render() {
@@ -26,31 +29,34 @@ class Dashboard extends Component {
     if (profile === null || loading) {
       dashboardContent = <Spinner />;
     } else {
-      //CHeck if logged in user has profile data
+      // Logged-in user has profile data
       if (Object.keys(profile).length > 0) {
         dashboardContent = (
           <div>
             <p className="lead text-muted">
               Welcome <Link to={`/profile/${profile.handle}`}>{user.name}</Link>
             </p>
+
             <ProfileActions />
             <Experience experience={profile.experience} />
             <Education education={profile.education} />
+
             <div style={{ marginBottom: "60px" }} />
             <button
               onClick={this.onDeleteClick.bind(this)}
               className="btn btn-danger"
+              type="button"
             >
-              Delete My Account
+              <i className="fas fa-user-minus" /> Delete My Account
             </button>
           </div>
         );
       } else {
-        //User is logged in but has no profile
+        // User is logged in but has no profile
         dashboardContent = (
           <div>
             <p className="lead text-muted">Welcome {user.name}</p>
-            <p>You have not yet setup a profile, please add some info</p>
+            <p>You have not yet set up a profile. Please add some info.</p>
             <Link to="/create-profile" className="btn btn-lg btn-info">
               Create Profile
             </Link>
@@ -64,7 +70,7 @@ class Dashboard extends Component {
         <div className="container">
           <div className="row">
             <div className="col-md-12">
-              <h1 className="display-4"> Dashboard</h1>
+              <h1 className="display-4">My Profile</h1>
               {dashboardContent}
             </div>
           </div>
