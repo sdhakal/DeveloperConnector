@@ -8,7 +8,8 @@
   "server": "nodemon server.js",
   "client": "npm start --prefix client",
   "dev": "concurrently \"npm run server\" \"npm run client\""
-},
+  },
+  "engines": { "node": "18.x" },
   "author": "Suman Dhakal",
   "license": "MIT",
   "dependencies": {
