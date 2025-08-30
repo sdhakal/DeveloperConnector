@@ -58,4 +58,4 @@ if (fs.existsSync(buildPath)) {
 
 // ---- Listen on platform port ----
 const PORT = process.env.PORT || 5000;
-app.listen(port, () => console.log(`Server on ${port}`));
+app.listen(PORT, () => console.log(`Server on ${PORT}`));
