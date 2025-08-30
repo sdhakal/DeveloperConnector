@@ -4,14 +4,6 @@
 // Optional: harmless locally; ignored on Koyeb if no .env present
 try { require('dotenv').config(); } catch {}
 
-const path = require('path'); // <-- remove if you only needed it for static serving
-
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client', 'build')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
-  });
-}
 const fs = require('fs');
 const express = require('express');
 const mongoose = require('mongoose');
