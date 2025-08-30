@@ -9,22 +9,9 @@ import {
   SET_CURRENT_USER
 } from "./types";
 
-// Ensure Authorization header is set (useful after refresh)
-const ensureAuthHeader = () => {
-  const token = localStorage.getItem("jwtToken");
-  if (token) {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    axios.defaults.headers.common["x-auth-token"] = token; // compatible with either extractor
-  } else {
-    delete axios.defaults.headers.common["Authorization"];
-    delete axios.defaults.headers.common["x-auth-token"];
-  }
-};
-
-// Get current profile (private)
+//Get current profile
 export const getCurrentProfile = () => dispatch => {
   dispatch(setProfileLoading());
-  ensureAuthHeader();
   axios
     .get("/api/profile")
     .then(res =>
@@ -33,7 +20,7 @@ export const getCurrentProfile = () => dispatch => {
         payload: res.data
       })
     )
-    .catch(() =>
+    .catch(err =>
       dispatch({
         type: GET_PROFILE,
         payload: {}
@@ -41,7 +28,7 @@ export const getCurrentProfile = () => dispatch => {
     );
 };
 
-// Get profile by handle (public)
+//Get profile by handle
 export const getProfileByHandle = handle => dispatch => {
   dispatch(setProfileLoading());
   axios
@@ -52,7 +39,7 @@ export const getProfileByHandle = handle => dispatch => {
         payload: res.data
       })
     )
-    .catch(() =>
+    .catch(err =>
       dispatch({
         type: GET_PROFILE,
         payload: null
@@ -60,51 +47,47 @@ export const getProfileByHandle = handle => dispatch => {
     );
 };
 
-// Create / Update Profile (private)
+//Create Profile
 export const createProfile = (profileData, history) => dispatch => {
-  ensureAuthHeader();
   axios
     .post("/api/profile", profileData)
-    .then(() => history.push("/dashboard"))
+    .then(res => history.push("/dashboard"))
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
-        payload: (err && err.response && err.response.data) || { error: "Profile save failed" }
+        payload: err.response.data
       })
     );
 };
 
-// Add Experience (private)
+//Add Experience
 export const addExperience = (expData, history) => dispatch => {
-  ensureAuthHeader();
   axios
     .post("/api/profile/experience", expData)
-    .then(() => history.push("/dashboard"))
+    .then(res => history.push("/dashboard"))
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
-        payload: (err && err.response && err.response.data) || { error: "Add experience failed" }
+        payload: err.response.data
       })
     );
 };
 
-// Add Education (private)
+//Add Education
 export const addEducation = (eduData, history) => dispatch => {
-  ensureAuthHeader();
   axios
     .post("/api/profile/education", eduData)
-    .then(() => history.push("/dashboard"))
+    .then(res => history.push("/dashboard"))
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
-        payload: (err && err.response && err.response.data) || { error: "Add education failed" }
+        payload: err.response.data
       })
     );
 };
 
-// Delete Experience (private)
+//Delete Experience
 export const deleteExperience = id => dispatch => {
-  ensureAuthHeader();
   axios
     .delete(`/api/profile/experience/${id}`)
     .then(res =>
@@ -116,14 +99,13 @@ export const deleteExperience = id => dispatch => {
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
-        payload: (err && err.response && err.response.data) || { error: "Delete experience failed" }
+        payload: err.response.data
       })
     );
 };
 
-// Delete Education (private)
+//Delete Education
 export const deleteEducation = id => dispatch => {
-  ensureAuthHeader();
   axios
     .delete(`/api/profile/education/${id}`)
     .then(res =>
@@ -135,12 +117,12 @@ export const deleteEducation = id => dispatch => {
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
-        payload: (err && err.response && err.response.data) || { error: "Delete education failed" }
+        payload: err.response.data
       })
     );
 };
 
-// Get all profiles (public)
+//Get all profiles
 export const getProfiles = () => dispatch => {
   dispatch(setProfileLoading());
   axios
@@ -151,7 +133,7 @@ export const getProfiles = () => dispatch => {
         payload: res.data
       })
     )
-    .catch(() =>
+    .catch(err =>
       dispatch({
         type: GET_PROFILES,
         payload: null
@@ -159,42 +141,34 @@ export const getProfiles = () => dispatch => {
     );
 };
 
-// Delete account and profile (private)
+// Delete account and profile
 export const deleteAccount = () => dispatch => {
-  if (window.confirm("This will permanently delete your account and profile. Continue?")) {
-    ensureAuthHeader();
+  if (window.confirm("Are you sure? This can NOT be undone!")) {
     axios
       .delete("/api/profile")
-      .then(() => {
-        // Clear client state
-        dispatch({ type: CLEAR_CURRENT_PROFILE });
-        dispatch({ type: SET_CURRENT_USER, payload: {} });
-
-        // Remove token locally (helps prevent ghost auth state)
-        localStorage.removeItem("jwtToken");
-        delete axios.defaults.headers.common["Authorization"];
-        delete axios.defaults.headers.common["x-auth-token"];
-
-        // Optional: redirect to login (uncomment if you want immediate nav)
-        // window.location.href = "/login";
-      })
+      .then(res =>
+        dispatch({
+          type: SET_CURRENT_USER,
+          payload: {}
+        })
+      )
       .catch(err =>
         dispatch({
           type: GET_ERRORS,
-          payload: (err && err.response && err.response.data) || { error: "Delete account failed" }
+          payload: err.response.data
         })
       );
   }
 };
 
-// Profile loading
+//Profile loading
 export const setProfileLoading = () => {
   return {
     type: PROFILE_LOADING
   };
 };
 
-// Clear current profile
+//Clear current profile
 export const clearCurrentProfile = () => {
   return {
     type: CLEAR_CURRENT_PROFILE
