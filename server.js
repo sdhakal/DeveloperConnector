@@ -45,7 +45,13 @@ try { app.use('/api/posts', require('./routes/api/posts')); } catch { console.wa
 // ---- Health + friendly root ----
 app.get('/healthz', (_req, res) => res.send('ok'));
 app.get('/', (_req, res) => res.send('DeveloperConnector API is running'));
-
+const path = require('path');
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client', 'build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+  });
+}
 // ---- Serve CRA build if present ----
 const buildPath = path.join(__dirname, 'client', 'build');
 if (fs.existsSync(buildPath)) {
@@ -58,5 +64,5 @@ if (fs.existsSync(buildPath)) {
 }
 
 // ---- Listen on platform port ----
-const port = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server on ${port}`));
